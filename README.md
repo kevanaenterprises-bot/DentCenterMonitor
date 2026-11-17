@@ -68,23 +68,37 @@ fine for 5 machines; for more scale, move to the connected Supabase Postgres.
 
 ## 2. Install the agent on each machine
 
-Install Python 3 from python.org (ships with tkinter on both OSes), then:
+Install Python 3 from python.org (ships with tkinter on both OSes). The server
+URL and API key are already filled into the installer scripts.
 
+**Windows** — from an **admin** PowerShell, in the `agent` folder:
+```powershell
+powershell -ExecutionPolicy Bypass -File install_windows.ps1
+```
+Installs dependencies and registers a Scheduled Task that runs at every user
+logon. Start it now without logging off: `schtasks /Run /TN DentCenterMonitor`.
+Remove: `schtasks /Delete /TN DentCenterMonitor /F`.
+
+**macOS** — in the `agent` folder:
+```bash
+sudo bash install_mac.sh
+```
+Installs a LaunchAgent that starts in each user's login session. **Approve the
+Screen Recording prompt for Python the first time** (or System Settings →
+Privacy & Security → Screen Recording) — that prompt is itself part of being
+transparent.
+
+Install from an admin account while employees use standard (non-admin) accounts
+so the agent can't be silently removed.
+
+Manual run (for testing):
 ```bash
 cd agent
 pip install -r requirements.txt
-export MON_SERVER_URL="https://your-server-url"
-export MON_API_KEY="the-same-shared-secret"
+export MON_SERVER_URL="https://monitor-server-production-aa8610de.up.railway.app"
+export MON_API_KEY="the-shared-secret"
 python monitor_agent.py
 ```
-
-Make it run at login, under an admin-managed account:
-- **Windows:** a Scheduled Task set to "At log on", or wrap with NSSM as a
-  service. Install it from an admin account while employees use standard
-  (non-admin) accounts so they can't disable it.
-- **macOS:** a LaunchAgent/LaunchDaemon plist in `/Library/LaunchDaemons`.
-  macOS will prompt once to grant **Screen Recording** permission (needed for
-  screenshots) — that prompt is itself part of being transparent.
 
 Tunables (environment variables): `MON_HEARTBEAT` (sample seconds, default 30),
 `MON_SHOT_INTERVAL` (screenshot seconds, 0 = off), `MON_SHOTS` (1/0),
