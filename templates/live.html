@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Live — {{ user }}{% endblock %}
+{% block body %}
+<div class="card">
+  <a href="/user/{{ user }}" class="muted">← Back to {{ user }}</a>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+    <h2 style="margin:0">● Live — {{ user }}</h2>
+    <span id="status" class="pill">connecting…</span>
+  </div>
+</div>
+
+<div class="card" style="text-align:center;background:#000">
+  <img id="screen" alt="waiting for live frame…"
+       style="max-width:100%;border-radius:6px"/>
+  <p id="hint" class="muted" style="margin:10px 0 0">
+    Waiting for the agent to send a frame. If it stays blank, the computer may be
+    off or the agent not running.</p>
+</div>
+
+<script>
+const user = {{ user|tojson }};
+const TTL  = {{ ttl }};
+let alive = true;
+
+async function keepalive(){
+  // Tell the server we still want live frames; the agent polls this.
+  try { await fetch(`/live/${encodeURIComponent(user)}/start`, {method:'POST'}); }
+  catch(e){}
+}
+async function stop(){
+  try { await fetch(`/live/${encodeURIComponent(user)}/stop`, {method:'POST', keepalive:true}); }
+  catch(e){}
+}
+
+function refreshFrame(){
+  if(!alive) return;
+  const img = document.getElementById('screen');
+  const url = `/live/${encodeURIComponent(user)}/frame.jpg?t=${Date.now()}`;
+  const probe = new Image();
+  probe.onload = () => {
+    img.src = probe.src;
+    document.getElementById('status').textContent = 'live';
+    document.getElementById('status').style.color = 'var(--good)';
+    document.getElementById('hint').style.display = 'none';
+  };
+  probe.onerror = () => {
+    document.getElementById('status').textContent = 'no signal';
+    document.getElementById('status').style.color = 'var(--idle)';
+  };
+  probe.src = url;
+}
+
+keepalive();
+setInterval(keepalive, (TTL*1000)/2);   // refresh the request well before it expires
+setInterval(refreshFrame, 1000);        // ~1 fps
+window.addEventListener('beforeunload', () => { alive = false; stop(); });
+</script>
+{% endblock %}

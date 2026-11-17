@@ -1,0 +1,7 @@
+# Core agent runs on the Python standard library alone.
+# These add the optional extras:
+psutil        # Windows: resolve the active app's process name
+mss           # cross-platform screenshots (macOS has a built-in fallback)
+Pillow        # image resize / JPEG encode for screenshots
+pystray       # visible tray icon (transparency)
+# tkinter ships with the standard python.org installers on both OSes.

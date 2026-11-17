@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Activity Monitor{% endblock %}</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1d24;--line:#2a2f3a;--text:#e6e8ec;--muted:#9aa3b2;--accent:#3e82f7;--good:#2ecc71;--idle:#f0a848;}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--card)}
+  header h1{font-size:16px;margin:0}
+  header a{color:var(--muted);text-decoration:none;font-size:13px}
+  main{max-width:1000px;margin:0 auto;padding:22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);font-size:14px}
+  th{color:var(--muted);font-weight:600}
+  a.user{color:var(--accent);text-decoration:none;font-weight:600}
+  .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;min-width:120px}
+  .bar>span{display:block;height:100%;background:var(--good)}
+  .pill{font-size:12px;padding:2px 8px;border-radius:20px;background:var(--line);color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .grid img{width:100%;border-radius:8px;border:1px solid var(--line);cursor:pointer}
+  .muted{color:var(--muted)}
+  input,button{font:inherit}
+  input[type=date]{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔵 Activity Monitor</h1>
+  <nav><a href="/">Dashboard</a> &nbsp;·&nbsp; <a href="/logout">Log out</a></nav>
+</header>
+<main>{% block body %}{% endblock %}</main>
+</body>
+</html>

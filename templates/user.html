@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ user }}{% endblock %}
+{% block body %}
+<div class="card">
+  <a href="/?day={{ day }}" class="muted">← Back to dashboard</a>
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <h2 style="margin:8px 0 0">{{ user }} — {{ day }}</h2>
+    <a class="btn" href="/live/{{ user }}">● Watch live</a>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Top applications (active time)</h3>
+  {% if not app_breakdown %}<p class="muted">No active app data for this day.</p>{% endif %}
+  {% set maxm = (app_breakdown[0].minutes if app_breakdown else 1) or 1 %}
+  {% for a in app_breakdown %}
+  <div style="display:flex;align-items:center;gap:10px;margin:6px 0">
+    <div style="width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.app }}</div>
+    <div class="bar" style="flex:1"><span style="width:{{ (a.minutes*100//maxm) }}%;background:var(--accent)"></span></div>
+    <div class="muted" style="width:60px;text-align:right">{{ a.minutes }} min</div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Screenshots</h3>
+  {% if not shots %}<p class="muted">No screenshots captured (feature may be off).</p>{% endif %}
+  <div class="grid">
+    {% for s in shots %}
+      <a href="/screenshot/{{ s.id }}" target="_blank">
+        <img src="/screenshot/{{ s.id }}" loading="lazy" title="{{ s.ts[11:19] }}">
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Recent activity timeline</h3>
+  <table>
+    <tr><th>Time</th><th>App</th><th>Window</th><th>State</th></tr>
+    {% for t in timeline %}
+    <tr>
+      <td class="muted">{{ t.ts[11:19] }}</td>
+      <td>{{ t.app }}</td>
+      <td class="muted" style="max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.window_title }}</td>
+      <td>{% if t.state=='active' %}<span class="pill" style="color:var(--good)">active</span>
+          {% else %}<span class="pill" style="color:var(--idle)">idle</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

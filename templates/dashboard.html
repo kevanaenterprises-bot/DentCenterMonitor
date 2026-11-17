@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="card">
+  <form method="get" style="display:flex;gap:10px;align-items:center">
+    <label class="muted">Day</label>
+    <input type="date" name="day" value="{{ day }}">
+    <button class="btn" type="submit">View</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">People — {{ day }}</h2>
+  {% if not users %}
+    <p class="muted">No activity recorded for this day yet. Once agents are
+       installed and reporting, each person appears here.</p>
+  {% else %}
+  <table>
+    <tr><th>Employee</th><th>Computer</th><th>OS</th><th>Active</th><th>Idle</th>
+        <th>Active share</th><th>Last seen</th></tr>
+    {% for u in users %}
+    {% set total = (u.active_min + u.idle_min) or 1 %}
+    <tr>
+      <td><a class="user" href="/user/{{ u.user }}?day={{ day }}">{{ u.user }}</a></td>
+      <td>{{ u.host }}</td>
+      <td><span class="pill">{{ u.os }}</span></td>
+      <td>{{ u.active_min }} min</td>
+      <td class="muted">{{ u.idle_min }} min</td>
+      <td><div class="bar"><span style="width:{{ (u.active_min*100//total) }}%"></span></div></td>
+      <td class="muted">{{ u.last_seen[11:19] if u.last_seen else '—' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endblock %}
