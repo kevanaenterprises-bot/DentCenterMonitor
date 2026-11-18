@@ -64,6 +64,10 @@ echo "Wrote LaunchAgent to $PLIST"
 CONSOLE_USER=$(stat -f%Su /dev/console)
 CONSOLE_UID=$(id -u "$CONSOLE_USER")
 if [ "$CONSOLE_USER" != "root" ]; then
+  # Unload any previous version first, so reinstalling cleanly replaces it
+  launchctl bootout gui/$CONSOLE_UID "$PLIST" 2>/dev/null || true
+  pkill -f monitor_agent.py 2>/dev/null || true
+  sleep 1
   launchctl bootstrap gui/$CONSOLE_UID "$PLIST" 2>/dev/null \
     || launchctl load "$PLIST" 2>/dev/null || true
   echo "Loaded agent for current user: $CONSOLE_USER"

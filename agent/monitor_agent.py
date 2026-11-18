@@ -159,17 +159,31 @@ NOTICE = ("This computer is company property and its activity is monitored "
           "computer-use and monitoring policy.")
 
 def show_login_notice():
+    """Show the monitoring notice WITHOUT blocking the monitor loop.
+    Uses each OS's native, reliable dialog (Tkinter hangs under a macOS
+    LaunchAgent) and auto-dismisses so it can never get stuck."""
     try:
-        import tkinter as tk
-        from tkinter import messagebox
-        root = tk.Tk(); root.withdraw()
-        messagebox.showinfo("Monitoring notice", NOTICE)
-        root.destroy()
+        if IS_MAC:
+            import subprocess
+            subprocess.Popen(["osascript", "-e",
+                'display dialog "%s" with title "Monitoring notice" '
+                'buttons {"OK"} default button "OK" giving up after 30' % NOTICE])
+        elif IS_WIN:
+            import threading, ctypes
+            threading.Thread(
+                target=lambda: ctypes.windll.user32.MessageBoxW(0, NOTICE, "Monitoring notice", 0x40),
+                daemon=True).start()
+        else:
+            print("[monitoring notice]", NOTICE)
     except Exception:
         print("[monitoring notice]", NOTICE)
 
 def start_tray_icon():
-    """Keep a visible tray indicator so monitoring is never hidden."""
+    """Keep a visible indicator so monitoring is never hidden. On macOS the
+    system shows its own screen-recording indicator in the menu bar, and pystray
+    is unstable off the main thread, so we rely on that there instead."""
+    if IS_MAC:
+        return
     try:
         import threading
         import pystray
