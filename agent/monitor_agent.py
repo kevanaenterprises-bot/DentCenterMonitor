@@ -96,11 +96,27 @@ elif IS_MAC:
         except Exception:
             return ""
 
+    # Chromium-family browsers expose the active tab's URL + title via AppleScript
+    _CHROMIUM = {"Google Chrome", "Google Chrome Canary", "Chromium",
+                 "Brave Browser", "Microsoft Edge", "Arc", "Vivaldi", "Opera"}
+
     def get_active_window():
         app = _osa('tell application "System Events" to get name of first '
                    'application process whose frontmost is true')
-        title = _osa('tell application "System Events" to tell (first application '
-                     'process whose frontmost is true) to get title of front window')
+        title = ""
+        # For browsers, report the page (title + URL) rather than the window chrome
+        if app in _CHROMIUM:
+            t   = _osa('tell application "%s" to get title of active tab of front window' % app)
+            url = _osa('tell application "%s" to get URL of active tab of front window' % app)
+            title = " — ".join([p for p in (t, url) if p])
+        elif app == "Safari":
+            t   = _osa('tell application "Safari" to get name of front document')
+            url = _osa('tell application "Safari" to get URL of front document')
+            title = " — ".join([p for p in (t, url) if p])
+        # Fallback (and for all non-browser apps): window title via System Events
+        if not title:
+            title = _osa('tell application "System Events" to tell (first application '
+                         'process whose frontmost is true) to get title of front window')
         return app or "unknown", title or ""
 
     def get_idle_seconds():
